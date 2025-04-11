@@ -1,25 +1,75 @@
-const SERVER_PORT = 8080;
-
+import { MongoClient } from "mongodb"
+const { v4: uuidv4 } = require('uuid');
 const express = require('express');
-const app = express();
 
-app.use(express.static('./assets'));  // serve la soot-directory 'assets' come web-server di fails statici
+const app = express();
+const session = require('express-session')
+
+const SERVER_PORT = process.env.PORT || 8080;
+const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "admin"
+const MONGO_PASS = process.env.MONGO_INITDB_ROOT_PASSWORD || "password"
+const MONGO_HOST = process.env.MONGO_HOST || "mongodb"
+const MONGO_DB = process.env.MONGO_INITDB_DATABASE || "stackbank"
+const MONGO_URI = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:27017/`
+
+const client = new MongoClient(MONGO_URI);
+
+app.use(express.static('./assets')); 
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: process.env.SECRET || 'secret',    
+    cookie: {
+        sameSite: true,
+        secure: true,
+        httpOnly: true,
+        maxAge: 1000*60*60
+    }
+}));
+
+async function getDB(collection) {
+    await client.connect();
+    return client.db(MONGO_DB).collection(collection);
+}
+
+async function giocando(uid) {
+    const partite = getDB('partite');
+    const r = await partite.find({ status: "giocando", giocatori: { $in: [uid]} }).toArray();
+    return r.length > 0;
+}
 
 app.get('/', (req, resp) => {
     resp.redirect('/tris.html')
 });
 
-app.get('/chiedi-partita', (req, resp) => {
-    console.log(`Ricevuta richiesta GET per /chiedi-partita da ${resp.socket.remoteAddress} con id_partita = ${req.params.id_partita} e query_string = ${JSON.stringify(req.query)}`);
-    // Se c'è un altro richiedente in attesa  -> accoppia i due giocatori
-    //                             altrimenti -> la richiesta corrente resta in attesa
+app.get('/chiedi-partita', async (req, resp) => {
+    const partite = getDB('partite');
+    const utenti = getDB('utenti');
 
-    // la risposta conterrà <id_partita_player0, 0> per il giocatore che ha la mossa iniziale e <id_partita_player1, 1> per quello che attenderà la prima mossa
-    //      si avrà che (id_partita_player0 != id_partita_player1)
+    const userid = req.session.userid || 'none';
+
+    if (await giocando()) {
+        return resp.redirect('/');
+    }
+    if (userid === 'none') {
+        return resp.redirect('/login');
+    }
+
+    const utente = await utenti.findOne({ userid: userid });
+    const partita = await partite.find({ status: "aspettando" }).toArray();
+    if (partita.length === 0) {
+        const partitaid = uuidv4();
+        await db.insertOne({ giocatori: [utente.username], parita: partitaid, mosse: [], status: "aspettando" })
+        return resp.end(`<${partitaid}, 0>`);
+    }
+
+    const p = partita[0];
+    await partite.updateOne({ partita: p.partita }, { $set: { giocatori: [...p.giocatori, utente.username], status: "giocando" } })
+    return resp.end(`<${p.partita}, 1>`);
 });
 
 app.get('/muovi/:id_partita', (req, resp) => {
-    console.log(`Ricevuta richiesta GET per /muovi da ${resp.socket.remoteAddress} con id_partita = ${req.params.id_partita} e query_string = ${JSON.stringify(req.query)}`);
+    
     // qui req.query.row == riga 1..3 della mossa
     //     req.query.col == colonna 1..3 della mossa
 
@@ -38,8 +88,6 @@ app.get('/muovi/:id_partita', (req, resp) => {
 });
 
 app.get('/chiedi-mossa/:id_partita', (req, resp) => {
-    console.log(`Ricevuta richiesta GET per /chiedi-mossa da ${resp.socket.remoteAddress} con id_partita = ${req.params.id_partita} e query_string = ${JSON.stringify(req.query)}`);
-
     // la risposta conterrà <row, col, codice_ok> oppure <err, codice_errore>
     //      row, col = valori 1..3 della casella mossa dall'avversario
     //      codice_ok può essere:
@@ -49,13 +97,42 @@ app.get('/chiedi-mossa/:id_partita', (req, resp) => {
     //              3 == partita finita con patta
 });
 
-app.post('/login', (req, resp) => {
-    console.log(`Ricevuta richiesta POST per /login da ${resp.socket.remoteAddress}`);
+app.post('/login', async (req, resp) => {
+    const username = req.body.username;
+    const password = req.body.password;
 
-    // TODO : wishful thinking
+    if (!username || !password) {
+        return resp.end('dati mancanti')
+    }
+
+    const utenti = getDB('utenti');
+    // TODO: hash password
+    const u = await utenti.findOne({ username, password });
+    if (!u) {
+        return resp.end('utente non trovato');
+    }
+
+    req.session.userid = u.userid;
+    return redirect('/');
 });
 
-/* .... */
+
+app.post('/register', async (req, resp) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    if (!username || !password) {
+        return resp.end('dati mancanti')
+    }
+
+    const utenti = getDB('utenti');
+    if (await utenti.findOne({ username })) {
+        return resp.end('utente esistente');
+    }
+
+    await utenti.insertOne({ username, password, userid: uuidv4() });
+    resp.redirect('/login')
+});
 
 app.listen(SERVER_PORT, () => {
     console.log(`Server in ascolto su porta ${SERVER_PORT}`);

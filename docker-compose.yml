@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    container_name: tictactoe-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - 80:${PORT}
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    container_name: tictactoe-mongodb
+    env_file:
+      - .env
+    command: mongod --quiet --logpath /dev/null
