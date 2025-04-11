@@ -1,7 +1,11 @@
-FROM node:20-alpine
+FROM node:23-slim
 
-COPY . .
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY server.js ./
 
 RUN npm install
+
+COPY . .
 
 CMD ["node", "server.js"]

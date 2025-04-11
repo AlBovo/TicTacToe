@@ -1,9 +1,9 @@
-import { MongoClient } from "mongodb"
-const { v4: uuidv4 } = require('uuid');
-const express = require('express');
+import express from 'express';
+import session from 'express-session';
+import { MongoClient } from 'mongodb';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
-const session = require('express-session')
 
 const SERVER_PORT = process.env.PORT || 8080;
 const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "admin"
@@ -18,7 +18,9 @@ app.use(express.static('./assets'));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
-    secret: process.env.SECRET || 'secret',    
+    secret: process.env.SECRET || 'secret',
+    resave: false,
+    saveUninitialized: false,
     cookie: {
         sameSite: true,
         secure: true,
