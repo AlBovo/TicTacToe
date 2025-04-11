@@ -15,7 +15,7 @@ function handleCellClick(event) {
   cell.textContent = currentPlayer;
   checkWin();
   currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
-}
+};
 
 function checkWin() {
   const winningCombinations = [
@@ -28,22 +28,33 @@ function checkWin() {
     [1, 5, 9],
     [3, 5, 7]
   ];
+  
   for (let i = 0; i < winningCombinations.length; i++) {
     const [a, b, c] = winningCombinations[i];
-    if (hasClass(cells[a-1], currentPlayer) && hasClass(cells[b-1], currentPlayer) && hasClass(cells[c-1], currentPlayer)) {
+    if (
+      hasClass(cells[a - 1], currentPlayer) &&
+      hasClass(cells[b - 1], currentPlayer) &&
+      hasClass(cells[c - 1], currentPlayer)
+    ) {
       gameOver = true;
-	  msg.textContent = "Vince " + currentPlayer;
-      board.classList.add('game-over');
+      msg.textContent = "Vince " + currentPlayer;
+      
+      // 👉 Evidenzia solo la riga vincente
+      cells[a - 1].classList.add('win');
+      cells[b - 1].classList.add('win');
+      cells[c - 1].classList.add('win');
+      
       return;
     }
   }
+
   if (isBoardFull()) {
     gameOver = true;
-	msg.textContent = "Patta";
-    board.classList.add('game-over');
+    msg.textContent = "Patta";
     return;
   }
 }
+
 
 function isBoardFull() {
   for (let i = 0; i < cells.length; i++) {
@@ -52,11 +63,11 @@ function isBoardFull() {
     }
   }
   return true;
-}
+};
 
 function handleResetButtonClick() {
   for (let i = 0; i < cells.length; i++) {
-    cells[i].classList.remove('x', 'o');
+    cells[i].classList.remove('x', 'o', 'win');
     cells[i].textContent = '';
   }
   board.classList.remove('game-over');
@@ -65,11 +76,6 @@ function handleResetButtonClick() {
   currentPlayer = 'x';
 }
 
-async function InviaMossaAlServer(id_partita, row, col) {
-  const res = await fetch(`/muovi/${id_partita}?row=${row}&col=${col}`);
-
-  alert(res.body);  // TODO: la risposta va esaminata in base al protocollo
-}
 
 resetButton.addEventListener('click', handleResetButtonClick);  // NOTA: qui handleResetButtonClick non viene chiamato ma indicato come *delegato*
 
