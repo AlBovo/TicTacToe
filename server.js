@@ -9,7 +9,7 @@ const SERVER_PORT = process.env.PORT || 8080;
 const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "admin"
 const MONGO_PASS = process.env.MONGO_INITDB_ROOT_PASSWORD || "password"
 const MONGO_HOST = process.env.MONGO_HOST || "mongodb"
-const MONGO_DB = process.env.MONGO_INITDB_DATABASE || "stackbank"
+const MONGO_DB = process.env.MONGO_INITDB_DATABASE || "tictactoe"
 const MONGO_URI = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:27017/`
 
 const client = new MongoClient(MONGO_URI);
@@ -61,17 +61,39 @@ app.get('/chiedi-partita', async (req, resp) => {
     const partita = await partite.find({ status: "aspettando" }).toArray();
     if (partita.length === 0) {
         const partitaid = uuidv4();
-        await db.insertOne({ giocatori: [utente.username], parita: partitaid, mosse: [], status: "aspettando" })
+        await db.insertOne({ giocatori: [utente.username], partita: partitaid, mosse: [], status: "aspettando" })
+        req.session.partita = partitaid;
         return resp.end(`<${partitaid}, 0>`);
     }
 
     const p = partita[0];
     await partite.updateOne({ partita: p.partita }, { $set: { giocatori: [...p.giocatori, utente.username], status: "giocando" } })
+    req.session.partita = p.partita;
     return resp.end(`<${p.partita}, 1>`);
 });
 
 app.get('/muovi/:id_partita', (req, resp) => {
+    const partite = getDB('partite');
+    const userId = req.session.userId || "none";
+    const partitaId = req.session.partita || "none";
+
+    if (userId === "none") {
+        return resp.redirect('/login')
+    }
+
+    if (partitaId === "none") {
+        return resp.redirect('/chiedi-partita')
+    }
     
+    const partita = partite.findOne({ partita: partitaId});
+    if (partita) return resp.end('<id_partita sconosciuto, 0>');
+    
+    const posX = req.query.row || "none";
+    const posY = req.query.col || "none";
+    
+    if (posX === "none" || posY === "none") return resp.end('Riga o Colonna non inserita')
+    
+    // TODO : QUELLO QUA SOTTO!
     // qui req.query.row == riga 1..3 della mossa
     //     req.query.col == colonna 1..3 della mossa
 
