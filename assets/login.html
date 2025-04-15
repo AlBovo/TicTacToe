@@ -7,28 +7,29 @@
 </head>
 <body>
     <div class="container"> <!-- Contenitore principale per il form -->
-        <h1 style = "color: white">LOGIN UTENTE</h1> <!-- Titolo della sezione -->
 
-        <form id="registerForm"> <!-- Form per la registrazione dell'utente -->
-
-            <!-- Campo per il nome utente -->
-            <div class="form-group">
-                <label for="username">Nome utente</label>
+        <div class="row">
+            <h1 class="fw-lighter" style = "color: white">LOGIN UTENTE</h1> <!-- Titolo della sezione -->
+        </div>
+        <div class="row">
+        <form id="registerForm"> <!-- Form per la registrazione dell'utente -->                
+            <div class="form-group"> <!-- Campo per il nome utente -->
+                <label class="fw-lighter" for="username">Nome utente</label>
                 <input type="text" id="username" name="username" required>
                 <small class="error"></small>
             </div>
-
+        </div>
+        <div class="row">
             <!-- Campo per la password -->
             <div class="form-group">
-                <label for="password">Password</label>
+                <label class="fw-lighter" for="password">Password</label>
                 <input type="password" id="password" name="password" required>
                 <small class="error"></small>
             </div>
-
-            <!-- Pulsante per inviare il form -->
-            <button type="submit">Login</button>
-        </form>
-        <br>
+                <!-- Pulsante per inviare il form -->
+                <button class="fw-lighter" type="submit">Login</button>
+            </form>
+        </div>        
     </div>
 </body>
 </html>
