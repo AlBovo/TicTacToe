@@ -50,16 +50,18 @@ app.get('/chiedi-partita', async (req, resp) => {
 
     const userid = req.session.userid || 'none';
 
-    if (await giocando()) {
-        return resp.redirect('/');
-    }
     if (userid === 'none') {
         return resp.redirect('/login');
     }
 
+    if (await giocando(userid)) {
+        return resp.redirect('/');
+    }
+
     const utente = await utenti.findOne({ userid: userid });
     const partita = await partite.find({ status: "aspettando" }).toArray();
-    if (partita.length === 0) {
+
+    if (partita.length === 0) { // crea una nuova partita
         const partitaid = uuidv4();
         await db.insertOne({ giocatori: [utente.username], partita: partitaid, mosse: [], status: "aspettando" })
         req.session.partita = partitaid;
@@ -72,10 +74,10 @@ app.get('/chiedi-partita', async (req, resp) => {
     return resp.end(`<${p.partita}, 1>`);
 });
 
-app.get('/muovi/:id_partita', (req, resp) => {
+app.get('/muovi/:id_partita', async (req, resp) => {
     const partite = getDB('partite');
     const userId = req.session.userId || "none";
-    const partitaId = req.session.partita || "none";
+    const partitaId = req.params.id_partita || "none";
 
     if (userId === "none") {
         return resp.redirect('/login')
@@ -86,14 +88,24 @@ app.get('/muovi/:id_partita', (req, resp) => {
     }
     
     const partita = partite.findOne({ partita: partitaId});
-    if (partita) return resp.end('<id_partita sconosciuto, 0>');
+    if (partita) return resp.end('<err, 0>'); // id partita sconosciuto
     
     const posX = req.query.row || "none";
     const posY = req.query.col || "none";
     
     if (posX === "none" || posY === "none") return resp.end('Riga o Colonna non inserita')
     
-    // TODO : QUELLO QUA SOTTO!
+    let mosseCorrenti = partita.mosse;
+    if (mosseCorrenti.find(m => m.row == posX && m.col == posY)) {
+        return resp.end('<err, 1>'); // riga/colonna già utilizzati
+    }
+
+    const giocatori = partita.giocatori;
+    const giocatoreCorrente = giocatori[mosseCorrenti.length % 2];
+    if (giocatoreCorrente !== userId) {
+        return resp.end('<err, 2>'); // non era il tuo turno
+    }
+
     // qui req.query.row == riga 1..3 della mossa
     //     req.query.col == colonna 1..3 della mossa
 
