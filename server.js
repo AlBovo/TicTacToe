@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 const app = express();
 
 const SERVER_PORT = process.env.PORT || 8080;
-const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "admin"
+const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "administrator"
 const MONGO_PASS = process.env.MONGO_INITDB_ROOT_PASSWORD || "password"
 const MONGO_HOST = process.env.MONGO_HOST || "mongodb"
 const MONGO_DB = process.env.MONGO_INITDB_DATABASE || "tictactoe"
@@ -40,17 +40,27 @@ async function giocando(uid) {
     return r.length > 0;
 }
 
+async function statoPartita(mosse, nuova) {
+    let player = (mosse.length + 1) % 2;
+    let mossePlayer = mosse.filter((_, i) => (i % 2 === player));
+    mossePlayer.push(nuova);
+
+    // check if win
+
+    return true;
+}
+
 app.get('/', (req, resp) => {
-    resp.redirect('/tris.html')
+    resp.render('./assets/tris.html')
 });
 
 app.get('/chiedi-partita', async (req, resp) => {
     const partite = getDB('partite');
     const utenti = getDB('utenti');
 
-    const userid = req.session.userid || 'none';
+    const userid = req.session.userid;
 
-    if (userid === 'none') {
+    if (!userid || typeof userid !== "string") {
         return resp.redirect('/login');
     }
 
@@ -76,25 +86,26 @@ app.get('/chiedi-partita', async (req, resp) => {
 
 app.get('/muovi/:id_partita', async (req, resp) => {
     const partite = getDB('partite');
-    const userId = req.session.userId || "none";
-    const partitaId = req.params.id_partita || "none";
+    const userId = req.session.userId;
+    const partitaId = req.params.id_partita;
 
-    if (userId === "none") {
+    if (!userId || typeof userId !== "string") {
         return resp.redirect('/login')
     }
 
-    if (partitaId === "none") {
+    if (!partitaId || typeof partitaId !== "string") {
         return resp.redirect('/chiedi-partita')
     }
     
     const partita = partite.findOne({ partita: partitaId});
     if (partita) return resp.end('<err, 0>'); // id partita sconosciuto
     
-    const posX = req.query.row || "none";
-    const posY = req.query.col || "none";
+    const posX = parseInt(req.query.row);
+    const posY = parseInt(req.query.col);
     
-    if (posX === "none" || posY === "none") return resp.end('Riga o Colonna non inserita')
-    
+    if (isNaN(posX) || isNaN(posY)) return resp.end('Riga o Colonna non inserita');
+    if (posX < 1 || posY < 1 || posX > 3 || posY > 3) return resp.end('Riga o colonna non validi');
+
     let mosseCorrenti = partita.mosse;
     if (mosseCorrenti.find(m => m.row == posX && m.col == posY)) {
         return resp.end('<err, 1>'); // riga/colonna già utilizzati
@@ -105,7 +116,9 @@ app.get('/muovi/:id_partita', async (req, resp) => {
     if (giocatoreCorrente !== userId) {
         return resp.end('<err, 2>'); // non era il tuo turno
     }
-
+    
+    mosseCorrenti.push({ row: posX, col: posY });
+    partite.updateOne({ partita: partita.partita }, { $set: { mosse: mosseCorrenti }});
     // qui req.query.row == riga 1..3 della mossa
     //     req.query.col == colonna 1..3 della mossa
 
@@ -124,6 +137,17 @@ app.get('/muovi/:id_partita', async (req, resp) => {
 });
 
 app.get('/chiedi-mossa/:id_partita', (req, resp) => {
+    const partite = getDB('partite');
+    const userId = req.session.userId;
+    const partitaId = req.params.id_partita;
+
+    if (!userId || typeof userId !== "string") {
+        return resp.redirect('/login')
+    }
+
+    if (!partitaId || typeof partitaId !== "string") {
+        return resp.redirect('/chiedi-partita')
+    }
     // la risposta conterrà <row, col, codice_ok> oppure <err, codice_errore>
     //      row, col = valori 1..3 della casella mossa dall'avversario
     //      codice_ok può essere:
