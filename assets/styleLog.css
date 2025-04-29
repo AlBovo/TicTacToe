@@ -11,14 +11,15 @@ body {
 }
 
 /* Titolo */
+
 h1 {
-    color: white;
     font-size: 48px; 
     font-weight: bold;
     margin-bottom: 30px;
+    color: #ffffff;
     text-shadow: 2px 2px 5px #ff0000; /* Glow rosso sul titolo */
-}
-
+    
+  }
 /* Contenitore del form */
 .container {
     padding: 30px;
@@ -74,39 +75,5 @@ button[type="submit"] {
 
 /* Effetto di hover sul pulsante */
 button[type="submit"]:hover {
-    background-color: #d5006c; /* Colore più scuro per il pulsante al passaggio del mouse */
-    transform: scale(1.1); /* Effetto di ingrandimento del pulsante */
-}
-
-/* Aggiunta di animazione per il pulsante */
-@keyframes flash {
-    from { background-color: #ffeb3b; }
-    to { background-color: #ffeb76; }
-}
-
-/* Aggiunta di un effetto flash per i pulsanti */
-button[type="submit"]:active {
-    animation: flash 0.5s alternate;
-}
-
-/* Messaggi di errore */
-.invalid-feedback {
-    color: red;
-    font-size: 14px;
-    text-align: left;
-}
-
-/* Link per il login */
-.text-center p {
-    color: #ffffff;
-}
-
-.text-center a {
-    color: #ff00ff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.text-center a:hover {
-    color: #ff007f;
+    background-color: #d5006c; /* Colore più scuro per il pulsante al passaggio del*/
 }
