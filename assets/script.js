@@ -5,78 +5,124 @@ const msg = document.querySelector('#msg');
 
 let currentPlayer = 'x';
 let gameOver = false;
+let partitaId = null;
 
-function handleCellClick(event) {
+// Fetch the game state from the server
+async function fetchGameState() {
+  try {
+    const response = await fetch(`/chiedi-mossa/${partitaId}`);
+    const data = await response.text();
+
+    if (data.startsWith('<err')) {
+      const errorCode = data.split(',')[1].trim();
+      handleError(errorCode);
+      return;
+    }
+
+    const [row, col, status] = data.replace(/[<>]/g, '').split(',').map(Number);
+    if (row && col) {
+      const cellIndex = (row - 1) * 3 + (col - 1);
+      cells[cellIndex].classList.add(currentPlayer);
+      cells[cellIndex].textContent = currentPlayer;
+      currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+    }
+
+    handleGameStatus(status);
+  } catch (error) {
+    console.error('Error fetching game state:', error);
+  }
+}
+
+// Handle cell click
+async function handleCellClick(event) {
   const cell = event.target;
   if (cell.classList.contains('x') || cell.classList.contains('o') || gameOver) {
     return;
   }
-  cell.classList.add(currentPlayer);
-  cell.textContent = currentPlayer;
-  checkWin();
-  currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
-}
 
-function checkWin() {
-  const winningCombinations = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
-    [1, 4, 7],
-    [2, 5, 8],
-    [3, 6, 9],
-    [1, 5, 9],
-    [3, 5, 7]
-  ];
-  for (let i = 0; i < winningCombinations.length; i++) {
-    const [a, b, c] = winningCombinations[i];
-    if (hasClass(cells[a-1], currentPlayer) && hasClass(cells[b-1], currentPlayer) && hasClass(cells[c-1], currentPlayer)) {
-      gameOver = true;
-	  msg.textContent = "Vince " + currentPlayer;
-      board.classList.add('game-over');
+  const cellIndex = Array.from(cells).indexOf(cell);
+  const row = Math.floor(cellIndex / 3) + 1;
+  const col = (cellIndex % 3) + 1;
+
+  try {
+    const response = await fetch(`/muovi/${partitaId}?row=${row}&col=${col}`);
+    const data = await response.text();
+
+    if (data.startsWith('<err')) {
+      const errorCode = data.split(',')[1].trim();
+      handleError(errorCode);
       return;
     }
+
+    const [status] = data.replace(/[<>]/g, '').split(',').map(Number);
+    cell.classList.add(currentPlayer);
+    cell.textContent = currentPlayer;
+    currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+
+    handleGameStatus(status);
+  } catch (error) {
+    console.error('Error making move:', error);
   }
-  if (isBoardFull()) {
+}
+
+// Handle game status
+function handleGameStatus(status) {
+  if (status === 1) {
     gameOver = true;
-	msg.textContent = "Patta";
-    board.classList.add('game-over');
-    return;
+    msg.textContent = `Vince ${currentPlayer === 'x' ? 'o' : 'x'}`;
+  } else if (status === 3) {
+    gameOver = true;
+    msg.textContent = 'Patta';
   }
 }
 
-function isBoardFull() {
-  for (let i = 0; i < cells.length; i++) {
-    if (!cells[i].classList.contains('x') && !cells[i].classList.contains('o')) {
-      return false;
+// Handle errors
+function handleError(errorCode) {
+  if (errorCode === '0') {
+    msg.textContent = 'Partita sconosciuta';
+  } else if (errorCode === '1') {
+    msg.textContent = 'Mossa non valida: casella già occupata';
+  } else if (errorCode === '2') {
+    msg.textContent = 'Non è il tuo turno';
+  }
+}
+
+// Reset the game
+async function handleResetButtonClick() {
+  try {
+    const response = await fetch('/chiedi-partita');
+    const data = await response.text();
+
+    if (data.startsWith('<')) {
+      const [id, status] = data.replace(/[<>]/g, '').split(',').map(Number);
+      partitaId = id;
+      gameOver = false;
+      msg.textContent = '';
+      currentPlayer = 'x';
+
+      for (let i = 0; i < cells.length; i++) {
+        cells[i].classList.remove('x', 'o', 'win');
+        cells[i].textContent = '';
+      }
+
+      if (status === 1) {
+        fetchGameState();
+      }
     }
+  } catch (error) {
+    console.error('Error resetting game:', error);
   }
-  return true;
 }
 
-function handleResetButtonClick() {
-  for (let i = 0; i < cells.length; i++) {
-    cells[i].classList.remove('x', 'o');
-    cells[i].textContent = '';
-  }
-  board.classList.remove('game-over');
-  gameOver = false;
-  msg.textContent = "";
-  currentPlayer = 'x';
+// Initialize the game
+async function initializeGame() {
+  await handleResetButtonClick();
 }
 
-async function InviaMossaAlServer(id_partita, row, col) {
-  const res = await fetch(`/muovi/${id_partita}?row=${row}&col=${col}`);
-
-  alert(res.body);  // TODO: la risposta va esaminata in base al protocollo
-}
-
-resetButton.addEventListener('click', handleResetButtonClick);  // NOTA: qui handleResetButtonClick non viene chiamato ma indicato come *delegato*
+resetButton.addEventListener('click', handleResetButtonClick);
 
 for (let i = 0; i < cells.length; i++) {
   cells[i].addEventListener('click', handleCellClick);
 }
 
-function hasClass(el, className) {
-  return el.classList.contains(className);
-};
+initializeGame();

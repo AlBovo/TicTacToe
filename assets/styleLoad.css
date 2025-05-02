@@ -1,0 +1,18 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #00c8ff, #4e0080); /* Blu elettrico e viola */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    
+}
+
+h3 {
+    font-weight: lighter;
+    font-style: italic; 
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 5px #ff0000; /* Glow rosso sul titolo */
+}

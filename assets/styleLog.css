@@ -1,0 +1,79 @@
+/* Stile di base per il body */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #00c8ff, #4e0080); /* Blu elettrico e viola */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Titolo */
+
+h1 {
+    font-size: 48px; 
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #ffffff;
+    text-shadow: 2px 2px 5px #ff0000; /* Glow rosso sul titolo */
+    
+  }
+/* Contenitore del form */
+.container {
+    padding: 30px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px; /* Dimensione simile alla larghezza delle celle del gioco */
+    text-align: center;
+}
+
+/* Stile per i campi di input */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-size: 18px;
+    color: #ffffff;
+    text-shadow: 1px 1px 4px #ff0000; /* Glow rosso per le etichette */
+    display: block;
+    margin-bottom: 10px;
+}
+
+.form-group input {
+    width: 100%; /* Larghezza piena per gli input */
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #ff00ff; /* Bordi rosa shocking */
+    font-size: 18px;
+    margin-bottom: 10px;
+    background-color: #ffffff;
+    transition: background-color 0.3s, box-shadow 0.2s;
+}
+
+/* Effetto di glow sui campi di input */
+.form-group input:focus {
+    background-color: #f0f0f0;
+    box-shadow: 0 0 10px 2px rgba(255, 0, 127, 0.7); /* Glow rosa attorno ai campi di input */
+    outline: none;
+}
+
+/* Stile per il pulsante */
+button[type="submit"] {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #ff007f; /* Rosa shock per il pulsante */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 0 10px 2px rgba(255, 0, 127, 0.7); /* Glow rosa shock per il pulsante */
+}
+
+/* Effetto di hover sul pulsante */
+button[type="submit"]:hover {
+    background-color: #d5006c; /* Colore più scuro per il pulsante al passaggio del*/
+}
