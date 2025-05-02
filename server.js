@@ -40,14 +40,33 @@ async function giocando(uid) {
     return r.length > 0;
 }
 
-async function statoPartita(mosse, nuova) {
-    let player = (mosse.length + 1) % 2;
+function statoPartita(mosse, player) {
     let mossePlayer = mosse.filter((_, i) => (i % 2 === player));
     mossePlayer.push(nuova);
 
-    // check if win
+    const winningCombinations = [
+        // Rows
+        [{rowX: 0, rowY: 0}, {rowX: 1, rowY: 0}, {rowX: 2, rowY: 0}],
+        [{rowX: 0, rowY: 1}, {rowX: 1, rowY: 1}, {rowX: 2, rowY: 1}],
+        [{rowX: 0, rowY: 2}, {rowX: 1, rowY: 2}, {rowX: 2, rowY: 2}],
+        // Columns
+        [{rowX: 0, rowY: 0}, {rowX: 0, rowY: 1}, {rowX: 0, rowY: 2}],
+        [{rowX: 1, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 1, rowY: 2}],
+        [{rowX: 2, rowY: 0}, {rowX: 2, rowY: 1}, {rowX: 2, rowY: 2}],
+        // Diagonals
+        [{rowX: 0, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 2, rowY: 2}],
+        [{rowX: 2, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 0, rowY: 2}]
+    ];
 
-    return true;
+    return winningCombinations.some(combination =>
+        combination.every(pos =>
+          cells.some(cell => cell.rowX === pos.rowX && cell.rowY === pos.rowY)
+        )
+    );
+}
+
+function trovaGiocatore(giocatori, player) {
+    return giocatori.findIndex(p => p === player);
 }
 
 app.get('/', (req, resp) => {
@@ -56,21 +75,16 @@ app.get('/', (req, resp) => {
 
 app.get('/chiedi-partita', async (req, resp) => {
     const partite = getDB('partite');
-    const utenti = getDB('utenti');
-
     const userid = req.session.userid;
 
     if (!userid || typeof userid !== "string") {
         return resp.redirect('/login');
     }
-
     if (await giocando(userid)) {
         return resp.redirect('/');
     }
 
-    const utente = await utenti.findOne({ userid: userid });
     const partita = await partite.find({ status: "aspettando" }).toArray();
-
     if (partita.length === 0) { // crea una nuova partita
         const partitaid = uuidv4();
         await db.insertOne({ giocatori: [userid], partita: partitaid, mosse: [], status: "aspettando" })
@@ -92,7 +106,6 @@ app.get('/muovi/:id_partita', async (req, resp) => {
     if (!userId || typeof userId !== "string") {
         return resp.redirect('/login')
     }
-
     if (!partitaId || typeof partitaId !== "string") {
         return resp.redirect('/chiedi-partita')
     }
@@ -104,6 +117,17 @@ app.get('/muovi/:id_partita', async (req, resp) => {
     const giocatoreCorrente = giocatori[mosseCorrenti.length % 2];
     if (giocatoreCorrente !== userId) {
         return resp.end('<err, 2>'); // non era il tuo turno
+    }
+
+    const giocatorePar = trovaGiocatore(partita.giocatori, userId);
+    if (statoPartita(partita.mosse, giocatorePar)) {
+        return resp.end('<ok, 1>'); // partita già finita, vinta
+    }
+    if (statoPartita(partita.mosse, !giocatorePar)) {
+        return resp.end('<ok, 2>'); // partita già finita, persa
+    }
+    if (partita.mosse.length === 9) {
+        return resp.end('<ok, 3>'); // partita già finita, patta
     }
 
     const posX = parseInt(req.query.row);
@@ -144,7 +168,6 @@ app.get('/chiedi-mossa/:id_partita', (req, resp) => {
     if (!userId || typeof userId !== "string") {
         return resp.redirect('/login')
     }
-
     if (!partitaId || typeof partitaId !== "string") {
         return resp.redirect('/chiedi-partita')
     }
@@ -155,7 +178,18 @@ app.get('/chiedi-mossa/:id_partita', (req, resp) => {
     const giocatoreID = partita.mosse.length % 2;
     const giocatoreCorrente = partita.giocatori[giocatoreID];
 
-    if(partita.mosse.length === 0 || (partita.mosse.length === 1 && giocatoreCorrente !== userid)) {
+    const giocatorePar = trovaGiocatore(partita.giocatori, userId);
+    if (statoPartita(partita.mosse, giocatorePar)) {
+        return resp.end('<ok, 1>'); // partita già finita, vinta
+    }
+    if (statoPartita(partita.mosse, !giocatorePar)) {
+        return resp.end('<ok, 2>'); // partita già finita, persa
+    }
+    if (partita.mosse.length === 9) {
+        return resp.end('<ok, 3>'); // partita già finita, patta
+    }
+
+    if(partita.mosse.length === 0 || (partita.mosse.length === 1 && giocatoreCorrente !== userId)) {
         return resp.end('<err, 0>'); // no mosse da mostrare
     }
 
