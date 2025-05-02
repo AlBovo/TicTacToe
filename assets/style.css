@@ -1,6 +1,9 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
   background: linear-gradient(135deg, #00c8ff, #4e0080); /* Blu elettrico e viola */
+  background-image: url('https://en.picmix.com/pic/download?picId=11728505&key=3b83a');
+  background-repeat: no-repeat;
+  background-size: cover;
   margin: 0;
   padding: 0;
   display: flex;
@@ -54,6 +57,8 @@ h1 {
 .hide {
   display: none;
 }
+
+
 
 #msg {
   font-size: 24px;
