@@ -73,13 +73,13 @@ app.get('/chiedi-partita', async (req, resp) => {
 
     if (partita.length === 0) { // crea una nuova partita
         const partitaid = uuidv4();
-        await db.insertOne({ giocatori: [utente.username], partita: partitaid, mosse: [], status: "aspettando" })
+        await db.insertOne({ giocatori: [userid], partita: partitaid, mosse: [], status: "aspettando" })
         req.session.partita = partitaid;
         return resp.end(`<${partitaid}, 0>`);
     }
 
     const p = partita[0];
-    await partite.updateOne({ partita: p.partita }, { $set: { giocatori: [...p.giocatori, utente.username], status: "giocando" } })
+    await partite.updateOne({ partita: p.partita }, { $set: { giocatori: [...p.giocatori, userid], status: "giocando" } })
     req.session.partita = p.partita;
     return resp.end(`<${p.partita}, 1>`);
 });
@@ -100,6 +100,12 @@ app.get('/muovi/:id_partita', async (req, resp) => {
     const partita = partite.findOne({ partita: partitaId});
     if (partita) return resp.end('<err, 0>'); // id partita sconosciuto
     
+    const giocatori = partita.giocatori;
+    const giocatoreCorrente = giocatori[mosseCorrenti.length % 2];
+    if (giocatoreCorrente !== userId) {
+        return resp.end('<err, 2>'); // non era il tuo turno
+    }
+
     const posX = parseInt(req.query.row);
     const posY = parseInt(req.query.col);
     
@@ -109,12 +115,6 @@ app.get('/muovi/:id_partita', async (req, resp) => {
     let mosseCorrenti = partita.mosse;
     if (mosseCorrenti.find(m => m.row == posX && m.col == posY)) {
         return resp.end('<err, 1>'); // riga/colonna già utilizzati
-    }
-
-    const giocatori = partita.giocatori;
-    const giocatoreCorrente = giocatori[mosseCorrenti.length % 2];
-    if (giocatoreCorrente !== userId) {
-        return resp.end('<err, 2>'); // non era il tuo turno
     }
     
     mosseCorrenti.push({ row: posX, col: posY });
@@ -148,6 +148,19 @@ app.get('/chiedi-mossa/:id_partita', (req, resp) => {
     if (!partitaId || typeof partitaId !== "string") {
         return resp.redirect('/chiedi-partita')
     }
+
+    const partita = partite.findOne({ partita: partitaId });
+    if (partita) return resp.end('<err, 0>'); // id partita sconosciuto
+
+    const giocatoreID = partita.mosse.length % 2;
+    const giocatoreCorrente = partita.giocatori[giocatoreID];
+
+    if(partita.mosse.length === 0 || (partita.mosse.length === 1 && giocatoreCorrente !== userid)) {
+        return resp.end('<err, 0>'); // no mosse da mostrare
+    }
+
+    const mossa = partita.mosse[(giocatoreCorrente === userId) ? partita.mosse.length-1 : partita.mosse.length];
+    return resp.end(`<${mossa.rowX}, ${mossa.rowY}, 0>`)
     // la risposta conterrà <row, col, codice_ok> oppure <err, codice_errore>
     //      row, col = valori 1..3 della casella mossa dall'avversario
     //      codice_ok può essere:
