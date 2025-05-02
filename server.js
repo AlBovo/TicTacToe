@@ -1,25 +1,148 @@
-const SERVER_PORT = 8080;
+import express from 'express';
+import session from 'express-session';
+import { MongoClient } from 'mongodb';
+import { v4 as uuidv4 } from 'uuid';
 
-const express = require('express');
 const app = express();
 
-app.use(express.static('./assets'));  // serve la soot-directory 'assets' come web-server di fails statici
+const SERVER_PORT = process.env.PORT || 8080;
+const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "administrator"
+const MONGO_PASS = process.env.MONGO_INITDB_ROOT_PASSWORD || "password"
+const MONGO_HOST = process.env.MONGO_HOST || "mongodb"
+const MONGO_DB = process.env.MONGO_INITDB_DATABASE || "tictactoe"
+const MONGO_URI = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:27017/`
+
+const client = new MongoClient(MONGO_URI);
+
+app.use(express.static('./assets')); 
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: process.env.SECRET || 'secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        sameSite: true,
+        secure: true,
+        httpOnly: true,
+        maxAge: 1000*60*60
+    }
+}));
+
+async function getDB(collection) {
+    await client.connect();
+    return client.db(MONGO_DB).collection(collection);
+}
+
+async function giocando(uid) {
+    const partite = getDB('partite');
+    const r = await partite.find({ status: "giocando", giocatori: { $in: [uid]} }).toArray();
+    return r.length > 0;
+}
+
+function statoPartita(mosse, player) {
+    let mossePlayer = mosse.filter((_, i) => (i % 2 === player));
+    mossePlayer.push(nuova);
+
+    const winningCombinations = [
+        // Rows
+        [{rowX: 0, rowY: 0}, {rowX: 1, rowY: 0}, {rowX: 2, rowY: 0}],
+        [{rowX: 0, rowY: 1}, {rowX: 1, rowY: 1}, {rowX: 2, rowY: 1}],
+        [{rowX: 0, rowY: 2}, {rowX: 1, rowY: 2}, {rowX: 2, rowY: 2}],
+        // Columns
+        [{rowX: 0, rowY: 0}, {rowX: 0, rowY: 1}, {rowX: 0, rowY: 2}],
+        [{rowX: 1, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 1, rowY: 2}],
+        [{rowX: 2, rowY: 0}, {rowX: 2, rowY: 1}, {rowX: 2, rowY: 2}],
+        // Diagonals
+        [{rowX: 0, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 2, rowY: 2}],
+        [{rowX: 2, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 0, rowY: 2}]
+    ];
+
+    return winningCombinations.some(combination =>
+        combination.every(pos =>
+          cells.some(cell => cell.rowX === pos.rowX && cell.rowY === pos.rowY)
+        )
+    );
+}
+
+function trovaGiocatore(giocatori, player) {
+    return giocatori.findIndex(p => p === player);
+}
 
 app.get('/', (req, resp) => {
-    resp.redirect('/tris.html')
+    resp.render('./assets/tris.html')
 });
 
-app.get('/chiedi-partita', (req, resp) => {
-    console.log(`Ricevuta richiesta GET per /chiedi-partita da ${resp.socket.remoteAddress} con id_partita = ${req.params.id_partita} e query_string = ${JSON.stringify(req.query)}`);
-    // Se c'è un altro richiedente in attesa  -> accoppia i due giocatori
-    //                             altrimenti -> la richiesta corrente resta in attesa
+app.get('/chiedi-partita', async (req, resp) => {
+    const partite = getDB('partite');
+    const userid = req.session.userid;
 
-    // la risposta conterrà <id_partita_player0, 0> per il giocatore che ha la mossa iniziale e <id_partita_player1, 1> per quello che attenderà la prima mossa
-    //      si avrà che (id_partita_player0 != id_partita_player1)
+    if (!userid || typeof userid !== "string") {
+        return resp.redirect('/login');
+    }
+    if (await giocando(userid)) {
+        return resp.redirect('/');
+    }
+
+    const partita = await partite.find({ status: "aspettando" }).toArray();
+    if (partita.length === 0) { // crea una nuova partita
+        const partitaid = uuidv4();
+        await db.insertOne({ giocatori: [userid], partita: partitaid, mosse: [], status: "aspettando" })
+        req.session.partita = partitaid;
+        return resp.end(`<${partitaid}, 0>`);
+    }
+
+    const p = partita[0];
+    await partite.updateOne({ partita: p.partita }, { $set: { giocatori: [...p.giocatori, userid], status: "giocando" } })
+    req.session.partita = p.partita;
+    return resp.end(`<${p.partita}, 1>`);
 });
 
-app.get('/muovi/:id_partita', (req, resp) => {
-    console.log(`Ricevuta richiesta GET per /muovi da ${resp.socket.remoteAddress} con id_partita = ${req.params.id_partita} e query_string = ${JSON.stringify(req.query)}`);
+app.get('/muovi/:id_partita', async (req, resp) => {
+    const partite = getDB('partite');
+    const userId = req.session.userId;
+    const partitaId = req.params.id_partita;
+
+    if (!userId || typeof userId !== "string") {
+        return resp.redirect('/login')
+    }
+    if (!partitaId || typeof partitaId !== "string") {
+        return resp.redirect('/chiedi-partita')
+    }
+    
+    const partita = partite.findOne({ partita: partitaId});
+    if (partita) return resp.end('<err, 0>'); // id partita sconosciuto
+    
+    const giocatori = partita.giocatori;
+    const giocatoreCorrente = giocatori[mosseCorrenti.length % 2];
+    if (giocatoreCorrente !== userId) {
+        return resp.end('<err, 2>'); // non era il tuo turno
+    }
+
+    const giocatorePar = trovaGiocatore(partita.giocatori, userId);
+    if (statoPartita(partita.mosse, giocatorePar)) {
+        return resp.end('<ok, 1>'); // partita già finita, vinta
+    }
+    if (statoPartita(partita.mosse, !giocatorePar)) {
+        return resp.end('<ok, 2>'); // partita già finita, persa
+    }
+    if (partita.mosse.length === 9) {
+        return resp.end('<ok, 3>'); // partita già finita, patta
+    }
+
+    const posX = parseInt(req.query.row);
+    const posY = parseInt(req.query.col);
+    
+    if (isNaN(posX) || isNaN(posY)) return resp.end('Riga o Colonna non inserita');
+    if (posX < 1 || posY < 1 || posX > 3 || posY > 3) return resp.end('Riga o colonna non validi');
+
+    let mosseCorrenti = partita.mosse;
+    if (mosseCorrenti.find(m => m.row == posX && m.col == posY)) {
+        return resp.end('<err, 1>'); // riga/colonna già utilizzati
+    }
+    
+    mosseCorrenti.push({ row: posX, col: posY });
+    partite.updateOne({ partita: partita.partita }, { $set: { mosse: mosseCorrenti }});
     // qui req.query.row == riga 1..3 della mossa
     //     req.query.col == colonna 1..3 della mossa
 
@@ -38,8 +161,40 @@ app.get('/muovi/:id_partita', (req, resp) => {
 });
 
 app.get('/chiedi-mossa/:id_partita', (req, resp) => {
-    console.log(`Ricevuta richiesta GET per /chiedi-mossa da ${resp.socket.remoteAddress} con id_partita = ${req.params.id_partita} e query_string = ${JSON.stringify(req.query)}`);
+    const partite = getDB('partite');
+    const userId = req.session.userId;
+    const partitaId = req.params.id_partita;
 
+    if (!userId || typeof userId !== "string") {
+        return resp.redirect('/login')
+    }
+    if (!partitaId || typeof partitaId !== "string") {
+        return resp.redirect('/chiedi-partita')
+    }
+
+    const partita = partite.findOne({ partita: partitaId });
+    if (partita) return resp.end('<err, 0>'); // id partita sconosciuto
+
+    const giocatoreID = partita.mosse.length % 2;
+    const giocatoreCorrente = partita.giocatori[giocatoreID];
+
+    const giocatorePar = trovaGiocatore(partita.giocatori, userId);
+    if (statoPartita(partita.mosse, giocatorePar)) {
+        return resp.end('<ok, 1>'); // partita già finita, vinta
+    }
+    if (statoPartita(partita.mosse, !giocatorePar)) {
+        return resp.end('<ok, 2>'); // partita già finita, persa
+    }
+    if (partita.mosse.length === 9) {
+        return resp.end('<ok, 3>'); // partita già finita, patta
+    }
+
+    if(partita.mosse.length === 0 || (partita.mosse.length === 1 && giocatoreCorrente !== userId)) {
+        return resp.end('<err, 0>'); // no mosse da mostrare
+    }
+
+    const mossa = partita.mosse[(giocatoreCorrente === userId) ? partita.mosse.length-1 : partita.mosse.length];
+    return resp.end(`<${mossa.rowX}, ${mossa.rowY}, 0>`)
     // la risposta conterrà <row, col, codice_ok> oppure <err, codice_errore>
     //      row, col = valori 1..3 della casella mossa dall'avversario
     //      codice_ok può essere:
@@ -49,13 +204,42 @@ app.get('/chiedi-mossa/:id_partita', (req, resp) => {
     //              3 == partita finita con patta
 });
 
-app.post('/login', (req, resp) => {
-    console.log(`Ricevuta richiesta POST per /login da ${resp.socket.remoteAddress}`);
+app.post('/login', async (req, resp) => {
+    const username = req.body.username;
+    const password = req.body.password;
 
-    // TODO : wishful thinking
+    if (!username || !password) {
+        return resp.end('dati mancanti')
+    }
+
+    const utenti = getDB('utenti');
+    // TODO: hash password
+    const u = await utenti.findOne({ username, password });
+    if (!u) {
+        return resp.end('utente non trovato');
+    }
+
+    req.session.userid = u.userid;
+    return redirect('/');
 });
 
-/* .... */
+
+app.post('/register', async (req, resp) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    if (!username || !password) {
+        return resp.end('dati mancanti')
+    }
+
+    const utenti = getDB('utenti');
+    if (await utenti.findOne({ username })) {
+        return resp.end('utente esistente');
+    }
+
+    await utenti.insertOne({ username, password, userid: uuidv4() });
+    resp.redirect('/login')
+});
 
 app.listen(SERVER_PORT, () => {
     console.log(`Server in ascolto su porta ${SERVER_PORT}`);

@@ -1,5 +1,35 @@
 {
+  "name": "tictactoe",
+  "version": "1.0.0",
+  "description": "A simple Tic Tac Toe web app using Node.js, Express, MongoDB, and UUID.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
-    "express": "^5.1.0"
-  }
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "mongodb": "^6.15.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlBovo/TicTacToe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AlBovo/TicTacToe/issues"
+  },
+  "homepage": "https://github.com/AlBovo/TicTacToe#readme",
+  "keywords": [
+    "nodejs",
+    "express",
+    "tictactoe",
+    "mongodb",
+    "uuid"
+  ],
+  "author": "",
+  "license": "ISC"
 }
