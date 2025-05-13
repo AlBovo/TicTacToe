@@ -1,3 +1,5 @@
+<!-- 13/05/2025 4H Alan Davide Bovo, Mattia Cincotta, Giulia Cocka, Matteo Angiolillo, Antonio De Rosa -->
+<!--               Progetto TicTacToe basato su sito scritto con node.js e bootstrap                   -->
 <!DOCTYPE html>
 <html lang="it">
 
@@ -5,25 +7,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>In Attesa</title>
+    <!-- Link al CSS personalizzato per la pagina di attesa -->
     <link rel="stylesheet" type="text/css" href="loading.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" 
+    <!-- Bootstrap per layout flessibile e componenti pronti all'uso -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap " rel="stylesheet">
+    <!-- Font decorativo "Permanent Marker" da Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <!-- Container Bootstrap per centrare verticalmente e orizzontalmente -->
     <div class="container d-flex align-items-center justify-content-center min-vh-100">
+        <!-- Box di caricamento con stile personalizzato -->
         <div class="loading-box text-center">
+            <!-- Titolo con indicazione dello stato di attesa -->
             <h1 class="fw-bold title mb-4">IN ATTESA DI UN OPPONENT</h1>
 
+            <!-- Messaggio dinamico che mostra l'attesa -->
             <p class="waiting-message mb-4">Sto cercando un giocatore... 🕹️</p>
 
+            <!-- Spinner decorativo con doodle style -->
             <div class="spinner-wrapper d-inline-block mb-4">
                 <div class="spinner-border doodle-spinner" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
 
+            <!-- Link per annullare la ricerca e tornare al login -->
             <div class="mt-4">
                 <a href="/login" class="btn-cancel">Annulla e torna al login</a>
             </div>

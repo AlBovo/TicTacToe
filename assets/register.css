@@ -1,56 +1,63 @@
-/* styleRegister.css */
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap ');
+/****************************************************************************************************
+* 13/05/2025 4H Alan Davide Bovo, Mattia Cincotta, Giulia Cocka, Matteo Angiolillo, Antonio De Rosa *
+*               Progetto TicTacToe basato su sito scritto con node.js e bootstrap                   *
+****************************************************************************************************/
+/* Import del font "Permanent Marker" da Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
+/* === Base Styles === */
+/* Reset di margini e padding, impostazione altezza minima e centratura contenuto */
 body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    font-family: 'Permanent Marker', cursive;
-    background: #fdf6e3;
-    background-image: repeating-linear-gradient(
-        to right,
-        transparent 0 20px,
-        rgba(0,0,0,0.03) 20px 22px
-    ), repeating-linear-gradient(
-        to bottom,
-        transparent 0 20px,
-        rgba(0,0,0,0.03) 20px 22px
-    );
-    display: flex;
+    font-family: 'Permanent Marker', cursive; /* Font principale */
+    background: #fdf6e3; /* Colore di sfondo caldo */
+    background-image: /* Sottile griglia in overlay */
+        repeating-linear-gradient(
+            to right,
+            transparent 0 20px,
+            rgba(0,0,0,0.03) 20px 22px
+        ), repeating-linear-gradient(
+            to bottom,
+            transparent 0 20px,
+            rgba(0,0,0,0.03) 20px 22px
+        );
+    display: flex; /* Flexbox per centrare orizzontalmente e verticalmente */
     align-items: center;
     justify-content: center;
 }
 
+/* === Titolo della Pagina === */
 .title {
-    color: #8b5e3c;
-    text-shadow: 1px 1px 1px #ccc;
+    color: #8b5e3c; /* Colore marrone-verde */
+    text-shadow: 1px 1px 1px #ccc; /* Leggera ombra */
     margin-bottom: 2rem;
     position: relative;
 }
-
 .title::after {
     content: '';
     position: absolute;
     bottom: -10px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80%;
+    width: 80%; /* Linea decorativa sotto il titolo */
     height: 2px;
     background: linear-gradient(to right, transparent, #8b5e3c, transparent);
 }
 
+/* === Contenitore del Form === */
 .form-container {
-    background: #fff9e6;
-    border: 8px double #8b5e3c;
+    background: #fff9e6; /* Sfondo chiaro */
+    border: 8px double #8b5e3c; /* Bordo doppio decorativo */
     border-radius: 15px;
     padding: 2rem;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    box-shadow: 0 0 20px rgba(0,0,0,0.2); /* Ombra profonda */
     position: relative;
     overflow: hidden;
 }
-
 .form-container::before {
-    content: '';
+    content: ''; /* Overlay decorativo con gradiente radiale */
     position: absolute;
     top: -50%;
     left: -50%;
@@ -58,46 +65,48 @@ body {
     height: 200%;
     background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
     transform: rotate(25deg);
-    pointer-events: none; /* Prevents blocking interactions */
-    z-index: -1; /* Optional: Ensures it's behind the form content */
-}
-.form-group {
-    margin-bottom: 1.5rem;
-    text-align: left;
+    pointer-events: none; /* Non blocca interazioni */
+    z-index: -1; /* Dietro il contenuto */
 }
 
+/* === Gruppi di Input === */
+.form-group {
+    margin-bottom: 1.5rem; /* Spaziatura tra i gruppi */
+    text-align: left;
+}
 label {
     display: block;
-    color: #8b5e3c;
+    color: #8b5e3c; /* Colore label */
     margin-bottom: 0.5rem;
     font-weight: 400;
 }
 
+/* === Campi di testo e password === */
 input[type="text"],
 input[type="password"] {
     width: 100%;
     padding: 0.75rem;
-    border: 3px solid #8b5e3c;
+    border: 3px solid #8b5e3c; /* Bordo definito */
     border-radius: 8px;
     font-size: 1rem;
-    background: #fff3bf;
+    background: #fff3bf; /* Colore caldo di sfondo */
     transition: all 0.3s ease;
     font-family: 'Permanent Marker', cursive;
-    box-sizing: border-box; /* Added to prevent sizing issues */
-    height: 45px; /* Added fixed height for better usability */
+    box-sizing: border-box; /* Evita overflow */
+    height: 45px; /* Altezza fissa per usabilità */
 }
-
 input:focus {
     outline: none;
-    transform: scale(1.03);
+    transform: scale(1.03); /* Leggera espansione */
     box-shadow: 0 0 8px rgba(139, 94, 60, 0.3);
-    z-index: 1; /* Ensure focused input appears above other elements */
+    z-index: 1; /* Sopra altri elementi */
 }
 
+/* === Pulsante di Registrazione === */
 .btn-register {
     width: 100%;
     padding: 0.7rem;
-    background: #8b5e3c;
+    background: #8b5e3c; /* Colore primario */
     color: white;
     border: none;
     border-radius: 25px;
@@ -108,35 +117,32 @@ input:focus {
     position: relative;
     overflow: hidden;
 }
-
 .btn-register:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0,0,0,0.2);
 }
-
 .btn-register::after {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 300%;
+    width: 300%; /* Effetto ripple al click */
     height: 300%;
     background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
     border-radius: 50%;
     transform: translate(-50%, -50%) scale(0);
     transition: transform 0.5s ease;
 }
-
 .btn-register:active::after {
     transform: translate(-50%, -50%) scale(1);
 }
 
+/* === Messaggi di Errore === */
 .error-message {
-    color: #e74c3c;
+    color: #e74c3c; /* Rosso per errori */
     margin-top: 1rem;
-    min-height: 1.5rem;
+    min-height: 1.5rem; /* Spazio riservato */
 }
-
 .form-group .error {
     color: #e74c3c;
     font-size: 0.9rem;
@@ -144,18 +150,7 @@ input:focus {
     margin-top: 0.3rem;
 }
 
-@media (max-width: 576px) {
-    .form-container {
-        padding: 1.5rem;
-    }
-    
-    input[type="text"],
-    input[type="password"] {
-        font-size: 0.9rem;
-        height: 40px;
-    }
-}
-
+/* === Link di Login === */
 .login-link {
   display: inline-block;
   color: #8b5e3c;
@@ -165,9 +160,20 @@ input:focus {
   padding-bottom: 2px;
   transition: all 0.3s ease;
 }
-
 .login-link:hover {
   color: #e74c3c;
   border-color: #e74c3c;
   transform: scale(1.03);
+}
+
+/* === Responsive === */
+@media (max-width: 576px) {
+    .form-container {
+        padding: 1.5rem; /* Riduce padding in mobile */
+    }
+    input[type="text"],
+    input[type="password"] {
+        font-size: 0.9rem;
+        height: 40px;
+    }
 }

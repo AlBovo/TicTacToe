@@ -1,12 +1,21 @@
+<!-- 13/05/2025 4H Alan Davide Bovo, Mattia Cincotta, Giulia Cocka, Matteo Angiolillo, Antonio De Rosa -->
+<!--               Progetto TicTacToe basato su sito scritto con node.js e bootstrap                   -->
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tic Tac Toe Game</title>
+  <!-- Collego il file CSS per lo stile del gioco -->
   <link rel="stylesheet" type="text/css" href="tris.css">
 </head>
 <body>
-<div class="container">    
+  <!-- Contenitore principale del gioco -->
+  <div class="container">
+    <!-- Titolo del gioco -->
     <h1>TIC TAC TOE</h1>
+
+    <!-- Griglia di gioco 3x3: 9 celle identificate con id da 1 a 9 -->
     <div class="board">
       <div class="cell" id="1"></div>
       <div class="cell" id="2"></div>
@@ -18,9 +27,15 @@
       <div class="cell" id="8"></div>
       <div class="cell" id="9"></div>
     </div>
-    <p id="msg"><!-- qui andrà il messaggio sul vincitore--></p>
+
+    <!-- Paragrafo per visualizzare messaggi di stato (vittoria, patta, errore) -->
+    <p id="msg"></p>
+
+    <!-- Pulsante per resettare o iniziare una nuova partita -->
     <button id="reset">Reset Game</button>
   </div>
+
+  <!-- Inclusione dello script JavaScript con la logica del gioco -->
   <script src="script.js"></script>
 </body>
 </html>

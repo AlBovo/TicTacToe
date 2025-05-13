@@ -1,12 +1,19 @@
-/* style.css */
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap ');
+/****************************************************************************************************
+* 13/05/2025 4H Alan Davide Bovo, Mattia Cincotta, Giulia Cocka, Matteo Angiolillo, Antonio De Rosa *
+*               Progetto TicTacToe basato su sito scritto con node.js e bootstrap                   *
+****************************************************************************************************/
+/* Import del font "Permanent Marker" da Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
+/* === Stili Base === */
+/* Reset di margini e padding, imposta altezza minima e centrare il contenuto */
 body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    font-family: 'Permanent Marker', cursive;
-    background: #fdf6e3;
+    font-family: 'Permanent Marker', cursive; /* Font principale */
+    background: #fdf6e3; /* Colore di sfondo caldo */
+    /* Griglia sottile in overlay per effetto texture */
     background-image: repeating-linear-gradient(
         to right,
         transparent 0 20px,
@@ -16,54 +23,62 @@ body {
         transparent 0 20px,
         rgba(0,0,0,0.03) 20px 22px
     );
-    display: flex;
+    display: flex;           /* Flexbox per centrare il container */
     align-items: center;
     justify-content: center;
 }
 
+/* === Container del Gioco === */
+/* Box decorativa con bordo doppio e ombra morbida */
 .container {
     background: #fff9e6;
     border: 8px double #8b5e3c;
     border-radius: 15px;
-    padding: 2rem;
+    padding: 2rem;               /* Spazio interno abbondante */
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
+    max-width: 400px;            /* Limita larghezza su schermi grandi */
+    width: 90%;                  /* Larga il 90% su mobile */
+    text-align: center;          /* Centra testo e elementi */
     position: relative;
-    overflow: hidden;
+    overflow: hidden;            /* Maschera overlay decorativo */
 }
-
 .container::before {
     content: '';
     position: absolute;
-    top: -50%;
+    top: -50%;                   /* Posiziona overlay fuori dal contenuto */
     left: -50%;
     width: 200%;
     height: 200%;
+    /* Gradiente radiale leggero per effetto luce */
     background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
     transform: rotate(25deg);
 }
 
+/* === Titolo Principale === */
+/* Dimensione grande e ombra leggera per risalto */
 h1 {
-    margin-top: 0;
+    margin-top: 0;               /* Rimuove margine superiore di default */
     font-size: 2.5rem;
     color: #8b5e3c;
     text-shadow: 1px 1px 1px #ccc;
     margin-bottom: 1.5rem;
 }
 
+/* === Griglia di Gioco === */
+/* Disposizione 3x3 con bordi decorativi */
 .board {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    background: #f0e68c;
+    gap: 8px;                    /* Spazio tra le celle */
+    background: #f0e68c;        /* Sfondo dorato */
     padding: 10px;
     border: 4px dashed #8b5e3c;
     border-radius: 10px;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
 }
 
+/* === Cella della Griglia === */
+/* Dimensione fissa, bordo spesso e effetto hover */
 .cell {
     width: 100px;
     height: 100px;
@@ -78,22 +93,20 @@ h1 {
     border-radius: 8px;
     position: relative;
 }
-
 .cell:hover {
-    transform: scale(1.05);
+    transform: scale(1.05);       /* Leggera espansione al passaggio */
     background: #fff3bf;
 }
 
+/* === Stili per X e O con animazione === */
 .cell.x {
-    color: #e67e22;
+    color: #e67e22;              /* Arancione per X */
     animation: rubberBand 0.3s;
 }
-
 .cell.o {
-    color: #3498db;
+    color: #3498db;              /* Blu per O */
     animation: rubberBand 0.3s;
 }
-
 @keyframes rubberBand {
     0% { transform: scale(1); }
     10% { transform: scale(1.2) rotate(-5deg); }
@@ -103,12 +116,15 @@ h1 {
     100% { transform: scale(1) rotate(0); }
 }
 
+/* === Messaggi di Stato === */
 #msg {
     margin: 1rem 0;
     font-size: 1.2rem;
-    color: #8b5e3c;
+    color: #8b5e3c;              /* Colore coerente con il tema */
 }
 
+/* === Pulsante Reset === */
+/* Bottone arrotondato con effetto ripple al click */
 #reset {
     background: #8b5e3c;
     color: white;
@@ -122,7 +138,6 @@ h1 {
     position: relative;
     overflow: hidden;
 }
-
 #reset::after {
     content: '';
     position: absolute;
@@ -135,16 +150,16 @@ h1 {
     transform: translate(-50%, -50%) scale(0);
     transition: transform 0.5s ease;
 }
-
 #reset:active::after {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1); /* Effetto click */
 }
-
 #reset:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0,0,0,0.2);
 }
 
+/* === Responsive Design === */
+/* Celle ridotte su schermi molto piccoli */
 @media (max-width: 400px) {
     .cell {
         width: 80px;

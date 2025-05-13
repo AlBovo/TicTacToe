@@ -1,27 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap ');
+/****************************************************************************************************
+* 13/05/2025 4H Alan Davide Bovo, Mattia Cincotta, Giulia Cocka, Matteo Angiolillo, Antonio De Rosa *
+*               Progetto TicTacToe basato su sito scritto con node.js e bootstrap                   *
+****************************************************************************************************/
+/* Import del font "Permanent Marker" da Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
 /* === Base Styles === */
+/* Reset margini e padding, imposta altezza minima e centro del contenuto */
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  font-family: 'Permanent Marker', cursive;
-  background: #fdf6e3;
-  background-image: repeating-linear-gradient(
+  font-family: 'Permanent Marker', cursive; /* Font principale */
+  background: #fdf6e3; /* Colore di sfondo */
+  background-image: /* Griglia discreta sullo sfondo */
+    repeating-linear-gradient(
       to right,
       transparent 0 20px,
       rgba(0,0,0,0.03) 20px 22px
-  ), repeating-linear-gradient(
+    ),
+    repeating-linear-gradient(
       to bottom,
       transparent 0 20px,
       rgba(0,0,0,0.03) 20px 22px
-  );
-  display: flex;
+    );
+  display: flex;           /* Flexbox per centrare */
   align-items: center;
   justify-content: center;
 }
 
 /* === Page Title === */
+/* Stile del titolo della pagina con ombra e linea decorativa */
 .title {
   color: #8b5e3c;
   text-shadow: 1px 1px 1px #ccc;
@@ -29,19 +38,19 @@ body {
   position: relative;
   text-align: center;
 }
-
 .title::after {
   content: '';
   position: absolute;
   bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 80%;
+  width: 80%;         /* Linea decorativa orizzontale */
   height: 2px;
   background: linear-gradient(to right, transparent, #8b5e3c, transparent);
 }
 
 /* === Form Container === */
+/* Box con bordo doppio e ombra per contenitore del form */
 .form-container {
   background: #fff9e6;
   border: 8px double #8b5e3c;
@@ -52,7 +61,7 @@ body {
   overflow: hidden;
 }
 
-/* Decorative overlay with interaction fix */
+/* Overlay decorativo non interattivo */
 .form-container::before {
   content: '';
   position: absolute;
@@ -62,23 +71,24 @@ body {
   height: 200%;
   background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
   transform: rotate(25deg);
-  pointer-events: none; /* ✅ Prevents blocking form interactions */
+  pointer-events: none; /* Non intercetta click */
   z-index: -1;
 }
 
 /* === Form Elements === */
+/* Spaziatura tra gruppi di input e label */
 .form-group {
   margin-bottom: 1.5rem;
   text-align: left;
 }
-
+/* Label con colore e margine inferiore */
 label {
   display: block;
   color: #8b5e3c;
   margin-bottom: 0.5rem;
   font-weight: 400;
 }
-
+/* Input testuali con bordo spesso e background caldo */
 input[type="text"],
 input[type="password"] {
   width: 100%;
@@ -92,7 +102,7 @@ input[type="password"] {
   box-sizing: border-box;
   height: 45px;
 }
-
+/* Focus sugli input con ombra e scala */
 input:focus {
   outline: none;
   transform: scale(1.03);
@@ -101,6 +111,7 @@ input:focus {
 }
 
 /* === Login Button === */
+/* Pulsante grande, arrotondato e con ombra */
 .btn-login {
   width: 100%;
   padding: 0.7rem;
@@ -115,12 +126,11 @@ input:focus {
   position: relative;
   overflow: hidden;
 }
-
 .btn-login:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 8px rgba(0,0,0,0.2);
 }
-
+/* Effetto ripple sul click del pulsante */
 .btn-login::after {
   content: '';
   position: absolute;
@@ -133,18 +143,18 @@ input:focus {
   transform: translate(-50%, -50%) scale(0);
   transition: transform 0.5s ease;
 }
-
 .btn-login:active::after {
   transform: translate(-50%, -50%) scale(1);
 }
 
 /* === Error Messages === */
+/* Messaggi di errore in rosso sotto il form */
 .error-message {
   color: #e74c3c;
   margin-top: 1rem;
   min-height: 1.5rem;
 }
-
+/* Errori specifici per gruppo di input */
 .form-group .error {
   color: #e74c3c;
   font-size: 0.9rem;
@@ -153,6 +163,7 @@ input:focus {
 }
 
 /* === Registration Link === */
+/* Link di registrazione con effetto tratteggiato e hover */
 .registration-link {
   display: inline-block;
   color: #8b5e3c;
@@ -162,7 +173,6 @@ input:focus {
   padding-bottom: 2px;
   transition: all 0.3s ease;
 }
-
 .registration-link:hover {
   color: #e74c3c;
   border-color: #e74c3c;
@@ -170,17 +180,16 @@ input:focus {
 }
 
 /* === Responsive Design === */
+/* Adattamento per schermi piccoli */
 @media (max-width: 576px) {
   .form-container {
-    padding: 1.5rem;
+    padding: 1.5rem; /* Riduce padding */
   }
-
   input[type="text"],
   input[type="password"] {
     font-size: 0.9rem;
     height: 40px;
   }
-
   .btn-login {
     font-size: 1rem;
   }

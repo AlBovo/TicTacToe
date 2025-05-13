@@ -1,38 +1,55 @@
+<!-- 13/05/2025 4H Alan Davide Bovo, Mattia Cincotta, Giulia Cocka, Matteo Angiolillo, Antonio De Rosa -->
+<!--               Progetto TicTacToe basato su sito scritto con node.js e bootstrap                   -->
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Tic Tac Toe</title>
+  <!-- Link al CSS personalizzato per la pagina di login -->
   <link rel="stylesheet" type="text/css" href="login.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" 
+  <!-- Bootstrap per layout e componenti responsivi -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap " rel="stylesheet">
+  <!-- Font decorativo "Permanent Marker" da Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Container Bootstrap centrato orizzontalmente -->
   <div class="container text-center">
+    <!-- Riga per il titolo di login -->
     <div class="row justify-content-center">
       <h1 class="fw-bold title">LOGIN UTENTE</h1>
     </div>
 
+    <!-- Form di login in colonna centrale di larghezza 4 su dispositivi sm -->
     <div class="row justify-content-center">
       <div class="col-sm-4 form-container">
         <form id="loginForm">
+          <!-- Gruppo input per username -->
           <div class="form-group">
             <label for="username">Nome utente</label>
             <input type="text" id="username" name="username" required>
+            <!-- Placeholder per errori specifici su questo campo -->
             <small class="error"></small>
           </div>
 
+          <!-- Gruppo input per password -->
           <div class="form-group">
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
+            <!-- Placeholder per errori specifici su questo campo -->
             <small class="error"></small>
           </div>
+
+          <!-- Pulsante submit per inviare il form -->
           <button type="submit" class="btn-login">Accedi</button>
         </form>
 
+        <!-- Area per mostrare messaggi di errore generali dal server -->
         <div id="login-error" class="error-message"></div>
 
+        <!-- Link per reindirizzare alla pagina di registrazione -->
         <div class="mt-3">
           <a href="register" class="registration-link">Non sei registrato? Registrati qui</a>
         </div>
@@ -40,6 +57,7 @@
     </div>
   </div>
 
+  <!-- Inclusione dello script JS che gestisce il submit AJAX del login -->
   <script src="scripts/login.js"></script>
 </body>
 </html>

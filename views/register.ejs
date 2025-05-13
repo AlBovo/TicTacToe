@@ -1,46 +1,64 @@
+<!-- 13/05/2025 4H Alan Davide Bovo, Mattia Cincotta, Giulia Cocka, Matteo Angiolillo, Antonio De Rosa -->
+<!--               Progetto TicTacToe basato su sito scritto con node.js e bootstrap                   -->
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrazione - Tic Tac Toe Game</title>
+    <!-- Link al CSS personalizzato per la pagina di registrazione -->
     <link rel="stylesheet" type="text/css" href="register.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" 
+    <!-- Bootstrap per layout responsivo e stili pronti all'uso -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap " rel="stylesheet">
+    <!-- Font decorativo "Permanent Marker" da Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
-
 <body>
+    <!-- Container principale centrato con Bootstrap -->
     <div class="container text-center">
+        <!-- Riga per il titolo della pagina -->
         <div class="row">
             <h1 class="fw-bold title">REGISTRAZIONE UTENTE</h1>
         </div>
+        <!-- Row con form centrato su dispositivi sm -->
         <div class="row justify-content-center">
             <div class="col-sm-4 form-container">
+                <!-- Form di registrazione con id per lo script JS -->
                 <form id="registerForm">
+                    <!-- Gruppo input per nome utente -->
                     <div class="form-group">
                         <label for="username">Nome utente</label>
                         <input type="text" id="username" name="username" required>
+                        <!-- Span per errori specifici di questo campo -->
                         <small class="error"></small>
                     </div>
+                    <!-- Gruppo input per password -->
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" required>
                         <small class="error"></small>
                     </div>
+                    <!-- Gruppo input per conferma password -->
                     <div class="form-group">
                         <label for="confirmPassword">Conferma Password</label>
                         <input type="password" id="confirmPassword" name="confirmPassword" required>
                         <small class="error"></small>
                     </div>
+                    <!-- Pulsante per inviare il form -->
                     <button type="submit" class="btn-register">Registrati</button>
                 </form>
+                <!-- Area per messaggi di errore generali dal server -->
                 <div id="register-error" class="error-message"></div>
 
+                <!-- Link per tornare alla pagina di login -->
                 <div class="mt-3 w-100 text-center">
                     <a href="login" class="login-link">Hai già un account? Accedi qui</a>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Inclusione dello script JS per la registrazione AJAX -->
     <script src="scripts/register.js"></script>
 </body>
 </html>
