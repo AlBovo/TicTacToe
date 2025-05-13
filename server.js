@@ -6,11 +6,11 @@ import { v4 as uuidv4 } from 'uuid';
 const app = express();
 
 const SERVER_PORT = process.env.PORT || 8080;
-const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "administrator"
-const MONGO_PASS = process.env.MONGO_INITDB_ROOT_PASSWORD || "password"
-const MONGO_HOST = process.env.MONGO_HOST || "mongodb"
-const MONGO_DB = process.env.MONGO_INITDB_DATABASE || "tictactoe"
-const MONGO_URI = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:27017/`
+const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "administrator";
+const MONGO_PASS = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
+const MONGO_HOST = process.env.MONGO_HOST || "mongodb";
+const MONGO_DB = process.env.MONGO_INITDB_DATABASE || "tictactoe";
+const MONGO_URI = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:27017/`;
 
 const client = new MongoClient(MONGO_URI);
 
@@ -73,7 +73,7 @@ app.get('/', (req, res) => {
     if (req.session.userid) {
         return res.render('tris');
     }
-    res.redirect('/login')
+    res.redirect('/login');
 });
 
 app.get('/chiedi-partita', async (req, res) => {
@@ -90,13 +90,13 @@ app.get('/chiedi-partita', async (req, res) => {
     const partita = await partite.find({ status: "aspettando" }).toArray();
     if (partita.length === 0) { // crea una nuova partita
         const partitaid = uuidv4();
-        await partite.insertOne({ giocatori: [userid], partita: partitaid, mosse: [], status: "aspettando" })
+        await partite.insertOne({ giocatori: [userid], partita: partitaid, mosse: [], status: "aspettando" });
         req.session.partita = partitaid;
         return res.end(`<${partitaid}, 0>`);
     }
 
     const p = partita[0];
-    await partite.updateOne({ partita: p.partita }, { $set: { giocatori: [...p.giocatori, userid], status: "giocando" } })
+    await partite.updateOne({ partita: p.partita }, { $set: { giocatori: [...p.giocatori, userid], status: "giocando" } });
     req.session.partita = p.partita;
     res.end(`<${p.partita}, 1>`);
 });
@@ -107,10 +107,10 @@ app.get('/muovi/:id_partita', async (req, res) => {
     const partitaId = req.params.id_partita;
 
     if (!userId || typeof userId !== "string") {
-        return res.redirect('/login')
+        return res.redirect('/login');
     }
     if (!partitaId || typeof partitaId !== "string") {
-        return res.redirect('/chiedi-partita')
+        return res.redirect('/chiedi-partita');
     }
     
     const partita = partite.findOne({ partita: partitaId});
@@ -169,10 +169,10 @@ app.get('/chiedi-mossa/:id_partita', async (req, res) => {
     const partitaId = req.params.id_partita;
 
     if (!userId || typeof userId !== "string") {
-        return res.redirect('/login')
+        return res.redirect('/login');
     }
     if (!partitaId || typeof partitaId !== "string") {
-        return res.redirect('/chiedi-partita')
+        return res.redirect('/chiedi-partita');
     }
 
     const partita = partite.findOne({ partita: partitaId });
@@ -197,7 +197,7 @@ app.get('/chiedi-mossa/:id_partita', async (req, res) => {
     }
 
     const mossa = partita.mosse[(giocatoreCorrente === userId) ? partita.mosse.length-1 : partita.mosse.length];
-    return res.end(`<${mossa.rowX}, ${mossa.rowY}, 0>`)
+    return res.end(`<${mossa.rowX}, ${mossa.rowY}, 0>`);
     // la risposta conterrà <row, col, codice_ok> oppure <err, codice_errore>
     //      row, col = valori 1..3 della casella mossa dall'avversario
     //      codice_ok può essere:
@@ -219,7 +219,7 @@ app.post('/login', async (req, res) => {
     const password = req.body.password;
 
     if (!username || !password) {
-        return res.end('dati mancanti')
+        return res.end('dati mancanti');
     }
 
     const utenti = await getDB('utenti');
@@ -245,7 +245,7 @@ app.post('/register', async (req, res) => {
     const password = req.body.password;
 
     if (!username || !password) {
-        return res.end('dati mancanti')
+        return res.end('dati mancanti');
     }
 
     const utenti = await getDB('utenti');
@@ -254,7 +254,7 @@ app.post('/register', async (req, res) => {
     }
 
     await utenti.insertOne({ username, password, userid: uuidv4() });
-    res.redirect('/login')
+    res.redirect('/login');
 });
 
 app.listen(SERVER_PORT, () => {
