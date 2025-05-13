@@ -14,7 +14,8 @@ const MONGO_URI = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:27017/`
 
 const client = new MongoClient(MONGO_URI);
 
-app.use(express.static('./assets/')); 
+app.use(express.static('./assets/'));
+app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
@@ -23,7 +24,6 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         sameSite: true,
-        secure: true,
         httpOnly: true,
         maxAge: 1000*60*60
     }
@@ -35,7 +35,7 @@ async function getDB(collection) {
 }
 
 async function giocando(uid) {
-    const partite = getDB('partite');
+    const partite = await getDB('partite');
     const r = await partite.find({ status: "giocando", giocatori: { $in: [uid]} }).toArray();
     return r.length > 0;
 }
@@ -69,16 +69,19 @@ function trovaGiocatore(giocatori, player) {
     return giocatori.findIndex(p => p === player);
 }
 
-app.get('/', (req, resp) => {
-    resp.redirect('login.html')
+app.get('/', (req, res) => {
+    if (req.session.userid) {
+        return res.render('tris');
+    }
+    res.redirect('/login')
 });
 
 app.get('/chiedi-partita', async (req, res) => {
-    const partite = getDB('partite');
+    const partite = await getDB('partite');
     const userid = req.session.userid;
 
     if (!userid || typeof userid !== "string") {
-        return resp.redirect('/login.html');
+        return res.redirect('/login');
     }
     if (await giocando(userid)) {
         return res.redirect('/');
@@ -87,7 +90,7 @@ app.get('/chiedi-partita', async (req, res) => {
     const partita = await partite.find({ status: "aspettando" }).toArray();
     if (partita.length === 0) { // crea una nuova partita
         const partitaid = uuidv4();
-        await db.insertOne({ giocatori: [userid], partita: partitaid, mosse: [], status: "aspettando" })
+        await partite.insertOne({ giocatori: [userid], partita: partitaid, mosse: [], status: "aspettando" })
         req.session.partita = partitaid;
         return res.end(`<${partitaid}, 0>`);
     }
@@ -95,11 +98,11 @@ app.get('/chiedi-partita', async (req, res) => {
     const p = partita[0];
     await partite.updateOne({ partita: p.partita }, { $set: { giocatori: [...p.giocatori, userid], status: "giocando" } })
     req.session.partita = p.partita;
-    return res.end(`<${p.partita}, 1>`);
+    res.end(`<${p.partita}, 1>`);
 });
 
 app.get('/muovi/:id_partita', async (req, res) => {
-    const partite = getDB('partite');
+    const partite = await getDB('partite');
     const userId = req.session.userId;
     const partitaId = req.params.id_partita;
 
@@ -160,8 +163,8 @@ app.get('/muovi/:id_partita', async (req, res) => {
     res.end('<ok, 0>');
 });
 
-app.get('/chiedi-mossa/:id_partita', (req, res) => {
-    const partite = getDB('partite');
+app.get('/chiedi-mossa/:id_partita', async (req, res) => {
+    const partite = await getDB('partite');
     const userId = req.session.userId;
     const partitaId = req.params.id_partita;
 
@@ -204,6 +207,13 @@ app.get('/chiedi-mossa/:id_partita', (req, res) => {
     //              3 == partita finita con patta
 });
 
+app.get('/login', (req, res) => {
+    if (req.session.userid) {
+        return res.redirect('/');
+    }
+    res.render('login');
+});
+
 app.post('/login', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -220,9 +230,15 @@ app.post('/login', async (req, res) => {
     }
 
     req.session.userid = u.userid;
-    resp.redirect('/');
+    res.redirect('/');
 });
 
+app.get('/register', (req, res) => {
+    if (req.session.userid) {
+        return res.redirect('/');
+    }
+    res.render('register');
+});
 
 app.post('/register', async (req, res) => {
     const username = req.body.username;
