@@ -12,7 +12,7 @@
         </div>
         <div class="row justify-content-center"> <!-- Allineamento centrale -->
             <div class="col-sm-3"> <!-- Colonna con larghezza fissa -->
-                <form id="registerForm"> <!-- Form per la registrazione dell'utente -->
+                <form id="loginForm"> <!-- Form per la registrazione dell'utente -->
                     <div class="form-group"> <!-- Campo per il nome utente -->                
                         <label class="fw-lighter" for="username">Nome utente</label>                
                         <input type="text" id="username" name="username" required>                
@@ -26,10 +26,13 @@
                     </div>
 
                     <!-- Pulsante per inviare il form -->                
-                    <button class="fw-lighter col-sm-12" type="submit">Login</button>
+                    <button class="fw-lighter col-sm-12" id="login-btn" type="submit">Login</button>
                 </form>
+                <div id="login-error" style="color: red; margin-top: 10px;"></div>
             </div>
         </div>        
     </div>
+
+    <script src="scripts/login.js"></script>
 </body>
 </html>
