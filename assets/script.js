@@ -92,6 +92,7 @@ async function handleResetButtonClick() {
   try {
     const response = await fetch('/chiedi-partita');
     const data = await response.text();
+    console.log(data);
 
     if (data.startsWith('<')) {
       const [id, status] = data.replace(/[<>]/g, '').split(',').map(Number);

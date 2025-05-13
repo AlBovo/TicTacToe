@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap ');
+
+/* === Base Styles === */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Permanent Marker', cursive;
+  background: #fdf6e3;
+  background-image: repeating-linear-gradient(
+      to right,
+      transparent 0 20px,
+      rgba(0,0,0,0.03) 20px 22px
+  ), repeating-linear-gradient(
+      to bottom,
+      transparent 0 20px,
+      rgba(0,0,0,0.03) 20px 22px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === Page Title === */
+.title {
+  color: #8b5e3c;
+  text-shadow: 1px 1px 1px #ccc;
+  margin-bottom: 2rem;
+  position: relative;
+  text-align: center;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #8b5e3c, transparent);
+}
+
+/* === Form Container === */
+.form-container {
+  background: #fff9e6;
+  border: 8px double #8b5e3c;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative overlay with interaction fix */
+.form-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  transform: rotate(25deg);
+  pointer-events: none; /* ✅ Prevents blocking form interactions */
+  z-index: -1;
+}
+
+/* === Form Elements === */
+.form-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+label {
+  display: block;
+  color: #8b5e3c;
+  margin-bottom: 0.5rem;
+  font-weight: 400;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 3px solid #8b5e3c;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff3bf;
+  transition: all 0.3s ease;
+  font-family: 'Permanent Marker', cursive;
+  box-sizing: border-box;
+  height: 45px;
+}
+
+input:focus {
+  outline: none;
+  transform: scale(1.03);
+  box-shadow: 0 0 8px rgba(139, 94, 60, 0.3);
+  z-index: 1;
+}
+
+/* === Login Button === */
+.btn-login {
+  width: 100%;
+  padding: 0.7rem;
+  background: #8b5e3c;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+}
+
+.btn-login::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.5s ease;
+}
+
+.btn-login:active::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* === Error Messages === */
+.error-message {
+  color: #e74c3c;
+  margin-top: 1rem;
+  min-height: 1.5rem;
+}
+
+.form-group .error {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  display: block;
+  margin-top: 0.3rem;
+}
+
+/* === Registration Link === */
+.registration-link {
+  display: inline-block;
+  color: #8b5e3c;
+  text-decoration: none;
+  font-weight: 400;
+  border-bottom: 2px dashed #8b5e3c;
+  padding-bottom: 2px;
+  transition: all 0.3s ease;
+}
+
+.registration-link:hover {
+  color: #e74c3c;
+  border-color: #e74c3c;
+  transform: scale(1.03);
+}
+
+/* === Responsive Design === */
+@media (max-width: 576px) {
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    font-size: 0.9rem;
+    height: 40px;
+  }
+
+  .btn-login {
+    font-size: 1rem;
+  }
+}

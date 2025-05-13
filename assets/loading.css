@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap ');
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Permanent Marker', cursive;
+  background: #fdf6e3;
+  background-image: repeating-linear-gradient(
+    to right,
+    transparent 0 20px,
+    rgba(0, 0, 0, 0.03) 20px 22px
+  ),
+  repeating-linear-gradient(
+    to bottom,
+    transparent 0 20px,
+    rgba(0, 0, 0, 0.03) 20px 22px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-box {
+  background: #fff9e6;
+  border: 8px double #8b5e3c;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-box::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  transform: rotate(25deg);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.title {
+  color: #8b5e3c;
+  text-shadow: 1px 1px 1px #ccc;
+  position: relative;
+  font-size: 2rem;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #8b5e3c, transparent);
+}
+
+.waiting-message {
+  font-size: 1.25rem;
+  color: #8b5e3c;
+  animation: bounceText 2s infinite;
+}
+
+@keyframes bounceText {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.spinner-wrapper {
+  display: inline-block;
+  padding: 1rem;
+  border: 3px dashed #8b5e3c;
+  border-radius: 50%;
+  background: #fff3bf;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  animation: pulse 2s infinite;
+}
+
+.doodle-spinner {
+  width: 6rem;
+  height: 6rem;
+  border-width: 5px;
+  border-color: #8b5e3c transparent #8b5e3c transparent;
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.btn-cancel {
+  display: inline-block;
+  color: #8b5e3c;
+  text-decoration: none;
+  font-weight: 400;
+  border-bottom: 2px dashed #8b5e3c;
+  padding-bottom: 2px;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  color: #e74c3c;
+  border-color: #e74c3c;
+  transform: scale(1.03);
+}

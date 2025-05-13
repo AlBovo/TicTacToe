@@ -1,0 +1,154 @@
+/* style.css */
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap ');
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: 'Permanent Marker', cursive;
+    background: #fdf6e3;
+    background-image: repeating-linear-gradient(
+        to right,
+        transparent 0 20px,
+        rgba(0,0,0,0.03) 20px 22px
+    ), repeating-linear-gradient(
+        to bottom,
+        transparent 0 20px,
+        rgba(0,0,0,0.03) 20px 22px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    background: #fff9e6;
+    border: 8px double #8b5e3c;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    transform: rotate(25deg);
+}
+
+h1 {
+    margin-top: 0;
+    font-size: 2.5rem;
+    color: #8b5e3c;
+    text-shadow: 1px 1px 1px #ccc;
+    margin-bottom: 1.5rem;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: #f0e68c;
+    padding: 10px;
+    border: 4px dashed #8b5e3c;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background: #fff9e6;
+    border: 3px solid #8b5e3c;
+    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    position: relative;
+}
+
+.cell:hover {
+    transform: scale(1.05);
+    background: #fff3bf;
+}
+
+.cell.x {
+    color: #e67e22;
+    animation: rubberBand 0.3s;
+}
+
+.cell.o {
+    color: #3498db;
+    animation: rubberBand 0.3s;
+}
+
+@keyframes rubberBand {
+    0% { transform: scale(1); }
+    10% { transform: scale(1.2) rotate(-5deg); }
+    30% { transform: scale(0.9) rotate(5deg); }
+    50% { transform: scale(1.1) rotate(-3deg); }
+    70% { transform: scale(0.95) rotate(3deg); }
+    100% { transform: scale(1) rotate(0); }
+}
+
+#msg {
+    margin: 1rem 0;
+    font-size: 1.2rem;
+    color: #8b5e3c;
+}
+
+#reset {
+    background: #8b5e3c;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#reset::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.5s ease;
+}
+
+#reset:active::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+#reset:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 400px) {
+    .cell {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+}

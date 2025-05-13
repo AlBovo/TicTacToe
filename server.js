@@ -69,8 +69,8 @@ function trovaGiocatore(giocatori, player) {
     return giocatori.findIndex(p => p === player);
 }
 
-app.get('/', (req, res) => {
-    res.redirect(302, '/tris.html');
+app.get('/', (req, resp) => {
+    resp.redirect('login.html')
 });
 
 app.get('/chiedi-partita', async (req, res) => {
@@ -78,7 +78,7 @@ app.get('/chiedi-partita', async (req, res) => {
     const userid = req.session.userid;
 
     if (!userid || typeof userid !== "string") {
-        return res.redirect('/login');
+        return resp.redirect('/login.html');
     }
     if (await giocando(userid)) {
         return res.redirect('/');
@@ -212,7 +212,7 @@ app.post('/login', async (req, res) => {
         return res.end('dati mancanti')
     }
 
-    const utenti = getDB('utenti');
+    const utenti = await getDB('utenti');
     // TODO: hash password
     const u = await utenti.findOne({ username, password });
     if (!u) {
@@ -220,7 +220,7 @@ app.post('/login', async (req, res) => {
     }
 
     req.session.userid = u.userid;
-    return redirect('/');
+    resp.redirect('/');
 });
 
 
@@ -232,7 +232,7 @@ app.post('/register', async (req, res) => {
         return res.end('dati mancanti')
     }
 
-    const utenti = getDB('utenti');
+    const utenti = await getDB('utenti');
     if (await utenti.findOne({ username })) {
         return res.end('utente esistente');
     }
