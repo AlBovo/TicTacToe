@@ -1,34 +1,49 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Tic Tac Toe Game</title>
-  <link rel="stylesheet" type="text/css" href="styleLog.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Registrazione - Tic Tac Toe Game</title>
+    <link rel="stylesheet" type="text/css" href="register.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap @5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap " rel="stylesheet">
 </head>
+
 <body>
     <div class="container text-center">
         <div class="row">
-            <h1 class="fw-bold" style="color: white">REGISTRAZIONE UTENTE</h1>
+            <h1 class="fw-bold title">REGISTRAZIONE UTENTE</h1>
         </div>
         <div class="row justify-content-center">
-            <div class="col-sm-3">
+            <div class="col-sm-4 form-container">
                 <form id="registerForm">
                     <div class="form-group">
-                        <label class="fw-lighter" for="username">Nome utente</label>
+                        <label for="username">Nome utente</label>
                         <input type="text" id="username" name="username" required>
                         <small class="error"></small>
                     </div>
                     <div class="form-group">
-                        <label class="fw-lighter" for="password">Password</label>
+                        <label for="password">Password</label>
                         <input type="password" id="password" name="password" required>
                         <small class="error"></small>
                     </div>
-                    <button type="submit" class="fw-lighter col-sm-12" id="register-btn">Registrati</button>
+                    <div class="form-group">
+                        <label for="confirmPassword">Conferma Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <small class="error"></small>
+                    </div>
+                    <button type="submit" class="btn-register">Registrati</button>
                 </form>
-                <div id="register-error" style="color: red; margin-top: 10px;"></div>
+                <!-- Existing error message -->
+                <div id="register-error" class="error-message"></div>
+
+                <!-- Centered login link -->
+                <div class="mt-3 w-100 text-center">
+                    <a href="login.html" class="login-link">Hai già un account? Accedi qui</a>
+                </div>
             </div>
         </div>
     </div>
     <script src="scripts/register.js"></script>
 </body>
+
 </html>
