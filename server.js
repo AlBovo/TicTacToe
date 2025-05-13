@@ -56,26 +56,25 @@ async function giocando(uid) {
 function statoPartita(mosse, player) {
     // filtra mosse del dato player (0 o 1) in base all'indice
     let mossePlayer = mosse.filter((_, i) => (i % 2 === player));
-    mossePlayer.push(nuova); // "nuova" deve essere definita al momento della chiamata
 
     const winningCombinations = [
         // righe
-        [{rowX: 0, rowY: 0}, {rowX: 1, rowY: 0}, {rowX: 2, rowY: 0}],
-        [{rowX: 0, rowY: 1}, {rowX: 1, rowY: 1}, {rowX: 2, rowY: 1}],
-        [{rowX: 0, rowY: 2}, {rowX: 1, rowY: 2}, {rowX: 2, rowY: 2}],
+        [{row: 1, col: 1}, {row: 2, col: 1}, {row: 3, col: 1}],
+        [{row: 1, col: 2}, {row: 2, col: 2}, {row: 3, col: 2}],
+        [{row: 1, col: 3}, {row: 2, col: 3}, {row: 3, col: 3}],
         // colonne
-        [{rowX: 0, rowY: 0}, {rowX: 0, rowY: 1}, {rowX: 0, rowY: 2}],
-        [{rowX: 1, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 1, rowY: 2}],
-        [{rowX: 2, rowY: 0}, {rowX: 2, rowY: 1}, {rowX: 2, rowY: 2}],
+        [{row: 1, col: 1}, {row: 1, col: 2}, {row: 1, col: 3}],
+        [{row: 2, col: 1}, {row: 2, col: 2}, {row: 2, col: 3}],
+        [{row: 3, col: 1}, {row: 3, col: 2}, {row: 3, col: 3}],
         // diagonali
-        [{rowX: 0, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 2, rowY: 2}],
-        [{rowX: 2, rowY: 0}, {rowX: 1, rowY: 1}, {rowX: 0, rowY: 2}]
+        [{row: 1, col: 1}, {row: 2, col: 2}, {row: 3, col: 3}],
+        [{row: 3, col: 1}, {row: 2, col: 2}, {row: 1, col: 3}]
     ];
 
     // controlla se esiste una combinazione vincente
     return winningCombinations.some(combination =>
         combination.every(pos =>
-          mossePlayer.some(cell => cell.rowX === pos.rowX && cell.rowY === pos.rowY)
+          mossePlayer.some(cell => cell.row === pos.row && cell.col === pos.col)
         )
     );
 }
@@ -85,7 +84,7 @@ function trovaGiocatore(giocatori, player) {
     return giocatori.findIndex(p => p === player);
 }
 
-// Rotta principale: se loggato mostra il gioco, altrimenti redirect a login
+// Route principale: se loggato mostra il gioco, altrimenti redirect a login
 app.get('/', (req, res) => {
     if (req.session.userid) {
         return res.render('tris');
@@ -122,7 +121,7 @@ app.get('/chiedi-partita', async (req, res) => {
     res.end(`<${p.partita}, 1>`); // 1 = partita iniziata
 });
 
-// Rotta per effettuare una mossa
+// Route per effettuare una mossa
 app.get('/muovi/:id_partita', async (req, res) => {
     const partite = await getDB('partite');
     const userId = req.session.userid;
@@ -146,9 +145,18 @@ app.get('/muovi/:id_partita', async (req, res) => {
     const idxPlayer = trovaGiocatore(giocatori, userId);
 
     // controlla stato vittoria o patta
-    if (statoPartita(mosseCorrenti, idxPlayer)) return res.end('<ok, 1>');
-    if (statoPartita(mosseCorrenti, 1 - idxPlayer)) return res.end('<ok, 2>');
-    if (mosseCorrenti.length === 9) return res.end('<ok, 3>');
+    if (statoPartita(mosseCorrenti, idxPlayer)) {
+        await partite.updateOne({ partita: partitaId }, { $set: { status: "finita" } });
+        return res.end('<ok, 1>');
+    }
+    if (statoPartita(mosseCorrenti, 1 - idxPlayer)) {
+        await partite.updateOne({ partita: partitaId }, { $set: { status: "finita" } });
+        return res.end('<ok, 2>');
+    }
+    if (mosseCorrenti.length === 9) {
+        await partite.updateOne({ partita: partitaId }, { $set: { status: "finita" } });
+        return res.end('<ok, 3>');
+    }
 
     // parse parametri mossa
     const posX = parseInt(req.query.row);
@@ -165,10 +173,24 @@ app.get('/muovi/:id_partita', async (req, res) => {
     mosseCorrenti.push({ row: posX, col: posY });
     await partite.updateOne({ partita: partitaId }, { $set: { mosse: mosseCorrenti } });
 
+    // controlla stato vittoria o patta
+    if (statoPartita(mosseCorrenti, idxPlayer)) {
+        await partite.updateOne({ partita: partitaId }, { $set: { status: "finita" } });
+        return res.end('<ok, 1>');
+    }
+    if (statoPartita(mosseCorrenti, 1 - idxPlayer)) {
+        await partite.updateOne({ partita: partitaId }, { $set: { status: "finita" } });
+        return res.end('<ok, 2>');
+    }
+    if (mosseCorrenti.length === 9) {
+        await partite.updateOne({ partita: partitaId }, { $set: { status: "finita" } });
+        return res.end('<ok, 3>');
+    }
+
     res.end('<ok, 0>'); // mossa accettata
 });
 
-// Rotta per controllare mossa avversario
+// Route per controllare mossa avversario
 app.get('/chiedi-mossa/:id_partita', async (req, res) => {
     const partite = await getDB('partite');
     const userId = req.session.userid;
@@ -186,10 +208,15 @@ app.get('/chiedi-mossa/:id_partita', async (req, res) => {
     const playerNext = partita.giocatori[idxNext];
     const idxUser = trovaGiocatore(partita.giocatori, userId);
 
+    let code = 0
     // verifica stato partita
-    if (statoPartita(mosse, idxUser)) return res.end('<ok, 1>');
-    if (statoPartita(mosse, 1 - idxUser)) return res.end('<ok, 2>');
-    if (mosse.length === 9) return res.end('<ok, 3>');
+    if (statoPartita(mosse, idxUser))       { code = 1; }
+    if (statoPartita(mosse, 1 - idxUser))   { code = 2; }
+    if (mosse.length === 9)                 { code = 3; }
+
+    if (playerNext !== userId) {
+        return res.end('<err, 0>'); // non è il turno dell'utente
+    }
 
     // nessuna mossa nuova da mostrare
     if (mosse.length === 0 || (mosse.length === 1 && playerNext !== userId)) {
@@ -197,8 +224,8 @@ app.get('/chiedi-mossa/:id_partita', async (req, res) => {
     }
 
     // restituisci ultima mossa avversario
-    const mossa = (playerNext === userId) ? mosse[mosse.length - 1] : mosse[mosse.length];
-    res.end(`<${mossa.row}, ${mossa.col}, 0>`);
+    const mossa = mosse[mosse.length - 1];
+    res.end(`<${mossa.row}, ${mossa.col}, ${code}>`);
 });
 
 // Login e registrazione
