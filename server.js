@@ -4,6 +4,7 @@
 ****************************************************************************************************/
 import express from 'express';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import { MongoClient } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,6 +17,7 @@ const MONGO_USER = process.env.MONGO_INITDB_ROOT_USERNAME || "administrator";
 const MONGO_PASS = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
 const MONGO_HOST = process.env.MONGO_HOST || "mongodb";
 const MONGO_DB = process.env.MONGO_INITDB_DATABASE || "tictactoe";
+const SECRET = process.env.SECRET || "secret";
 // URI di connessione a MongoDB con autenticazione
 const MONGO_URI = `mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:27017/`;
 
@@ -29,9 +31,18 @@ app.use(express.urlencoded({ extended: true })); // parsing form URL-encoded
 
 // Configurazione della sessione utente
 app.use(session({
-    secret: process.env.SECRET || 'secret', // chiave segreta per firmare il cookie
+    secret: SECRET, // chiave segreta per firmare il cookie
     resave: false,                          // non salvare la sessione se non modificata
     saveUninitialized: false,               // non salvare sessioni non inizializzate
+    store: MongoStore.create({
+        mongoUrl: MONGO_URI,
+        autoRemove: 'native',
+        collectionName: 'sessions',
+        ttl: 2 * 60 * 60, // 2 hours
+        crypto: {
+            secret: SECRET,
+        },
+    }),
     cookie: {
         sameSite: true,
         httpOnly: true,                     // cookie non accessibile via JavaScript lato client
